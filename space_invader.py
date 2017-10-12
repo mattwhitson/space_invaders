@@ -9,7 +9,7 @@ playerspeed = 15
 enemyspeed = 10
 collision_threshold = 50
 
-points = 0
+points = 1
 
 
 #Window Attributes
