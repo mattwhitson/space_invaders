@@ -9,25 +9,23 @@ playerspeed = 15
 enemyspeed = 10
 collision_threshold = 50
 
-points = 1
+points = 0
 
 
 #Window Attributes
 wn = turtle.Screen()
 wn.screensize (window_height, window_width)
-wn.bgcolor("black")
+
 
 #Player attributes
 player = turtle.Turtle()
-player.color("blue")
-player.shape("triangle")
 player.penup()
+player.speed(0)
 player.setposition(0, -250)
-player.setheading (90)
+player.setheading(90)
 
 #The score keeper Attributes
 score_keeper = turtle.Turtle()
-score_keeper.color ("white")
 score_keeper.penup()
 score_keeper.ht()
 score_keeper.setposition(-250, 250)
@@ -35,22 +33,23 @@ score_keeper.write(points, False, align="left", font=("Arial",14, "normal"))
 
 #Basic Enemy
 enemy = turtle.Turtle()
+enemy.hideturtle()
 enemy.penup()
-enemy.shape("circle")
-enemy.color("red")
-enemy.setposition (200, 200)
+enemy.speed(0)
+enemy.setposition(200,200)
+enemy.setheading(180)
 
 #player bullet
-bullet = turtle.Turtle()               
-bullet.color("Yellow")
+bullet = turtle.Turtle()
+bullet.speed(0)
 bullet.shape("triangle")
 bullet.penup()
-bullet.speed(0)
 bullet.setheading(90)
 bullet.shapesize(0.5, 0.5)
-bullet.hideturtle()
 
-bulletspeed = 20
+x = player.xcor()
+y = player.ycor()
+
 
 #Player movement Attributes
 def move_left():
@@ -67,16 +66,16 @@ def move_right():
         x = 280
     player.setx(x)
 
-def fire_bullet(): #Something in this section crashes the game
-    #declare bulletstate as a global if it needs changed
-    global bulletstate
-    if bulletstate == "ready":
-        bulletstate = "fire"
-        #move the bullet to the just above the player
-        x = player.xcor()
-        y = player.ycor() + 10
-        bullet.setposition(x, y)
-        bullet.showturtle()
+def fire_bullet():
+    bullet.showturtle()
+    x = player.xcor()
+    y = player.ycor()
+    print(x,y)
+    bullet.setposition(x,y + 20)
+    bullet.speed(1)
+    bullet.forward(500)
+    bullet.hideturtle()
+    bullet.speed(0)
 
     
 def player_pointX(x1):
@@ -123,15 +122,24 @@ turtle.listen()
 
 turtle.onkey(move_left, "Left")
 turtle.onkey(move_right, "Right")
-turtle.onkey(fire_bullet, "space")
+turtle.onkey(fire_bullet, "Up")
 
-#move the bullet
-y = bullet.ycor()
-y +=bulletspeed
-bullet.sety(y)
 
 #Main game loop
 while points < 3:
+    enemy.speed(1)
+    x = enemy.xcor()
+    if x > 280:
+        enemy.right(90)
+        enemy.forward(30)
+        enemy.right(90)
+    if x < -280:
+        enemy.left(90)
+        enemy.forward(30)
+        enemy.left(90)
+    enemy.showturtle()
+    enemy.forward(10)
+
     
     if is_collision(bullet, enemy): 
             points = (points + 1)
