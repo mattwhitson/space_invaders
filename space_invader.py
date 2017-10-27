@@ -6,51 +6,58 @@ import math
 window_height = 300
 window_width = 300
 playerspeed = 15
-enemyspeed = 10
+enemyspeed = 15
+bulletspeed = 20
 collision_threshold = 50
 
-points = 1
+points = 0
 
 
 #Window Attributes
 wn = turtle.Screen()
 wn.screensize (window_height, window_width)
-wn.bgcolor("black")
+
 
 #Player attributes
 player = turtle.Turtle()
-player.color("blue")
-player.shape("triangle")
 player.penup()
+player.speed(0)
 player.setposition(0, -250)
-player.setheading (90)
+player.setheading(90)
 
 #The score keeper Attributes
 score_keeper = turtle.Turtle()
-score_keeper.color ("white")
 score_keeper.penup()
 score_keeper.ht()
 score_keeper.setposition(-250, 250)
 score_keeper.write(points, False, align="left", font=("Arial",14, "normal"))
+points = 0
+
 
 #Basic Enemy
 enemy = turtle.Turtle()
+enemy.hideturtle()
 enemy.penup()
-enemy.shape("circle")
-enemy.color("red")
-enemy.setposition (200, 200)
+enemy.speed(0)
+enemy.setposition(200,200)
+enemy.setheading(180)
 
 #player bullet
-bullet = turtle.Turtle()               
-bullet.color("Yellow")
+bullet = turtle.Turtle()
+bullet.color("yellow")
 bullet.shape("triangle")
 bullet.penup()
 bullet.speed(0)
 bullet.setheading(90)
 bullet.shapesize(0.5, 0.5)
-bullet.hideturtle()
+bullet.hideturtle
 
 bulletspeed = 20
+
+#define bulletstate
+#ready - ready to fire
+#fire - bullet is firing
+bulletstate = "ready"
 
 #Player movement Attributes
 def move_left():
@@ -67,17 +74,16 @@ def move_right():
         x = 280
     player.setx(x)
 
-def fire_bullet(): #Something in this section crashes the game
-    #declare bulletstate as a global if it needs changed
+def fire_bullet():
+    #declare bulletstate
     global bulletstate
     if bulletstate == "ready":
         bulletstate = "fire"
-        #move the bullet to the just above the player
+        #move bullet to just above the player
         x = player.xcor()
-        y = player.ycor() + 10
-        bullet.setposition(x, y)
+        y = player.ycor() + 20
+        bullet.setposition(x,y)
         bullet.showturtle()
-
     
 def player_pointX(x1):
     player.xcor()
@@ -103,15 +109,8 @@ def enemy_pointY(y3):
     enemy.ycor()
     return enemy_pointy
 
-def is_collision(turtle1, turtle2):
-    d = math.sqrt((turtle2.xcor() - turtle1.xcor())**2 + (turtle2.ycor() - turtle1.ycor())**2) 
-    if d < collision_threshold:
-        return True
-    else:
-        return False
-
-def enemy_collision(turtle1, turtle3):
-    d = math.sqrt((turtle3.xcor() - turtle1.xcor())**2 + (turtle3.ycor() - turtle1.ycor())**2) 
+def isCollision(t1, t2):
+    d = math.sqrt(math.pow(t1.xcor() - t2.xcor(),2)+math.pow(t1.ycor() - t2.ycor(),2)) 
     if d < collision_threshold:
         return True
     else:
@@ -123,26 +122,52 @@ turtle.listen()
 
 turtle.onkey(move_left, "Left")
 turtle.onkey(move_right, "Right")
-turtle.onkey(fire_bullet, "space")
+turtle.onkey(fire_bullet, "Up")
 
-#move the bullet
-y = bullet.ycor()
-y +=bulletspeed
-bullet.sety(y)
 
 #Main game loop
 while points < 3:
+    enemy.speed(1)
+    x = enemy.xcor()
+    if x > 280:
+        enemy.right(90)
+        enemy.forward(30)
+        enemy.right(90)
+    if x < -280:
+        enemy.left(90)
+        enemy.forward(30)
+        enemy.left(90)
+    enemy.showturtle()
+    enemy.forward(10)
+
+    #move the bullet
+    y = bullet.ycor()
+    y +=bulletspeed
+    bullet.sety(y)
+
+    #check to see if bullet has reached the top
+    if bullet.ycor() > 275:
+        bullet.hideturtle()
+        bulletstate = "ready"
+
     
-    if is_collision(bullet, enemy): 
-            points = (points + 1)
-            score_keeper.undo()
-            score_keeper.write((points), False, align="left", font=("Arial",14, "normal"))
-            
-    if enemy_collision (player, enemy):
+    if isCollision(bullet, enemy,):
+        #reset bullet
+        bullet.hideturtle()
+        bulletstate = "ready"
+        bullet.setposition(0, -400)
+        #reset enemy
+        enemy.setposition(200, 250)
+        points = (points + 1)
         score_keeper.undo()
-        score_keeper.write(("You Lost!"), False, align="left", font=("Arial",14, "normal"))
-        print("Done")	
-        wn.exitonclick()
+        score_keeper.write((points), False, align="left", font=("Arial",14, "normal"))
+        print(points)
+            
+    if isCollision(player, enemy):
+        player.hideturtle()
+        enemy.hideturtle()
+        print("Game Over")
+        break
 
 if points == 3:
         score_keeper.undo()
@@ -152,3 +177,4 @@ if points == 3:
 
 print ("Done")
 wn.exitonclick()
+
